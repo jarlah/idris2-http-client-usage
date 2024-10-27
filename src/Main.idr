@@ -28,19 +28,6 @@ test_redirect = map_error show $ with_client {e=()} new_client_default $ \client
   content <- toList_ content
   printLn $ "\{show $ length content} bytes read"
 
--- run_test : String -> EitherT String IO () -> IO Bool
--- run_test name test = do
---   Right () <- runEitherT test
---   | Left err => putStrLn "\{name}: failed \{err}" $> False
---   putStrLn "\{name}: success" $> True
-
--- run : List (IO Bool) -> IO ()
--- run tests = do
---   results <- sequence tests
---   let [] = filter not results
---   | xs => putStrLn "\{show (length xs)} tests failed" *> exitFailure
---   putStrLn "all tests passed"
-
 main : IO ()
 main = do
   _ <- runEitherT test_redirect
