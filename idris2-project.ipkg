@@ -14,12 +14,6 @@ version = 0.1.0
 
 -- packages to add to search path
 depends = http
-        , base      >= 0.5.1
-        , contrib   >= 0.5.1
-        , network   >= 0.5.1
-        , sop       >= 0.5.0
-        , elab-util >= 0.5.0
-        , tls       >= 0.0.1
 
 -- modules to install
 -- modules =
