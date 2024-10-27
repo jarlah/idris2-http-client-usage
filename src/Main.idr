@@ -5,31 +5,24 @@ import Network.HTTP.URL
 import Data.Nat 
 import Control.Monad.Error.Either
 import Control.Monad.Error.Interface
-import System
 
-with_client : {e : _} -> IO (HttpClient e) -> (HttpClient e -> EitherT (HttpError e) IO a) -> EitherT (HttpError e) IO a
-with_client client f = MkEitherT $ do
-  c <- client
-  Right ok <- runEitherT (f c)
-  | Left err => close c *> pure (Left err)
-  close c
-  pure (Right ok)
+ResultMonad : Type -> Type
+ResultMonad = EitherT (HttpError ()) IO
 
-map_error : Functor m => (e -> e') -> EitherT e m a -> EitherT e' m a
-map_error f = bimapEitherT f id
+getClient: IO (HttpClient ())
+getClient = new_client certificate_ignore_check 25 5 True False
 
-test_redirect : EitherT String IO ()
-test_redirect = map_error show $ with_client {e=()} new_client_default $ \client => do
-  putStrLn "sending request"
-  (response, content) <- request client GET (url' "http://openbsd.org/70.html") [] ()
-  putStrLn "response header received"
-  printLn response
-  putStrLn "downloading response"
-  content <- toList_ content
-  printLn $ "\{show $ length content} bytes read"
+performRequest : HttpClient () ->
+  ResultMonad (HttpResponse, Stream (Of Bits8) ResultMonad ())
+
+performRequest client = 
+  request client GET (url' "http://openbsd.org/70.html") [] ()
 
 main : IO ()
 main = do
-  _ <- runEitherT test_redirect
-  putStrLn "all tests passed"
-
+    client <- getClient
+    result <- runEitherT $ performRequest client
+    case result of
+      Left err => printLn err
+      Right (responseCode, stream) =>
+        printLn responseCode
