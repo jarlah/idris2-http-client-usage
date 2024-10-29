@@ -4,6 +4,12 @@ path = "."
 ipkg = "idris2-project.ipkg"
 test = "test/test.ipkg"
 
+[custom.all.tls]
+type   = "git"
+url    = "https://github.com/ReilySiegel/idris2-tls"
+commit = "latest:fix-install"
+ipkg   = "tls.ipkg"
+
 [custom.all.idris2-project-test]
 type = "local"
 path = "test"
