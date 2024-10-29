@@ -24,3 +24,5 @@ main = do
       Left err => printLn err
       Right (response, stream) =>
         printLn (status_code response)
+    close client
+    printLn "Done"
