@@ -10,19 +10,21 @@ ResultMonad : Type -> Type
 ResultMonad = EitherT (HttpError ()) IO
 
 getClient: IO (HttpClient ())
-getClient = new_client_default
+getClient = new_client certificate_ignore_check 1 1 False False
 
 performRequest : HttpClient () -> ResultMonad (HttpResponse, Stream (Of Bits8) ResultMonad ())
 performRequest client = 
-  request client GET (url' "http://openbsd.org/70.html") [] ()
+  request client GET (url' "http://openbsd.org/70.html") [("Authorization", "Bearer foo")] ()
  
 main : IO ()
 main = do
     client <- getClient
-    result <- runEitherT $ performRequest client
-    case result of
-      Left err => printLn err
-      Right (response, stream) =>
-        printLn (status_code response)
+    
+    Right (result, stream) <- runEitherT $ performRequest client
+      | Left e => printLn "Error"
+    Right (content, _) <- runEitherT $ toList stream
+      | Left e => printLn "Error"    
+
+    printLn (status_code result)
     close client
     printLn "Done"
